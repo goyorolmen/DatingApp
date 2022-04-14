@@ -36,6 +36,12 @@ namespace API
                 options.UseSqlite(_config.GetConnectionString("DefaultConnection"));    
             });
             services.AddControllers();
+
+            // Este servicio de seguridad para el mecanismo de seguridad CORS
+            // Impide/bloquea que se llamen servicios con origen distinto.
+            // En este caso es localhost:4200 (Angular) llama a localhost:5001 (API)
+            services.AddCors();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
@@ -55,6 +61,10 @@ namespace API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            // El servicio CORS debe ir justo aqui, entre UseRouting y UseAuthorization
+            // Permite cualquier metodo con origen en el request localhost/4200
+            app.UseCors( x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200"));
 
             app.UseAuthorization();
 
